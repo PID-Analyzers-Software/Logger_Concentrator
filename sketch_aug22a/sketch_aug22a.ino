@@ -1,4 +1,3 @@
-#include "ThingsBoard.h"
 #include <WiFi.h>
 #include <movingAvg.h>                  // https://github.com/JChristensen/movingAvg
 #include <Wire.h>
