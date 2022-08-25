@@ -1,7 +1,4 @@
-#include <WiFi.h>
-#include <movingAvg.h>                  // https://github.com/JChristensen/movingAvg
 #include <Wire.h>
-#include <Adafruit_ADS1015.h>
 
 #include "BluetoothSerial.h"
 
@@ -14,46 +11,37 @@ int timelap = 0;
 
 // set pin numbers
 const int buttonPin = 22;  // the number of the pushbutton pin
-const int buzzPin =  4;    // the number of the LED pin
+const int inputPin = 34;
+
+const int numReadings  = 15;
+int readings [numReadings];
+int readIndex  = 0;
+long total  = 0;
+
 
 // variable for storing the pushbutton status
 int buttonState = 0;
 int time_remain = millis();
 
-#define wifi_ssid             "22CD"
-#define wifi_password       "00525508"
-
 
 // Baud rate for debug serial
 #define SERIAL_DEBUG_BAUD   115200
 
-movingAvg avgInput(10);                  // define the moving average object
-
-Adafruit_ADS1115 ads(0x48);
-
-
 void setup() {
   // initialize serial for debugging
   Serial.begin(SERIAL_DEBUG_BAUD);
-
   SerialBT.begin("ESP32test"); //Bluetooth device name
   Serial.println("The device started, now you can pair it with bluetooth!");
 
-
-  // initialize the pushbutton pin as an input
   pinMode(buttonPin, INPUT);
-  // initialize the LED pin as an output
-  pinMode(buzzPin, OUTPUT);
-  avgInput.begin();
-  ads.begin();
   delay(1000);
 }
 
 void loop() {
-  delay(100);
+  delay(50);
   int time_now =  millis();
-
-  float Voltage = analogRead(4) * 3300 / 4095;
+  float Voltage = smooth();
+  Serial.println(Voltage);
 
   buttonState = digitalRead(buttonPin);
   if (buttonState == HIGH) {
@@ -62,11 +50,29 @@ void loop() {
 
   if ((time_remain - time_now) > 0) {
     if (timelap < time_now) {
-      SerialBT.print(("" + String(Voltage, 0) + ",mV, \n").c_str());
-      Serial.println(Voltage);
+      SerialBT.print((String((5 * 60 * 1000 - (time_remain - time_now)) / 1000) + ", " + String(Voltage, 0) + ",ppb\n").c_str());
       Serial.println("Sending data...");
-      timelap = time_now + 1000;
+      timelap = time_now + 990;
     }
   }
 
+}
+
+long smooth() { /* function smooth */
+  ////Perform average on sensor readings
+  long average;
+  // subtract the last reading:
+  total = total - readings[readIndex];
+  // read the sensor:
+  readings[readIndex] = analogRead(inputPin) * 3300 / 4095;
+  // add value to total:
+  total = total + readings[readIndex];
+  // handle index
+  readIndex = readIndex + 1;
+  if (readIndex >= numReadings) {
+    readIndex = 0;
+  }
+  // calculate the average:
+  average = total / numReadings;
+  return average;
 }
