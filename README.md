@@ -1,5 +1,5 @@
 # Logger_Concentrator
-## !!! Read Voltage via Pin 4
+## !!! Read Voltage via Pin 34
 
 ## Please connected the push button like following
 !!!The pin input is 22 instead of 4.
