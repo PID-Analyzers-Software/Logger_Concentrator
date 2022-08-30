@@ -13,7 +13,7 @@ int timelap = 0;
 const int buttonPin = 22;  // the number of the pushbutton pin
 const int inputPin = 34;
 
-const int numReadings  = 15;
+const int numReadings  = 20;
 int readings [numReadings];
 int readIndex  = 0;
 long total  = 0;
@@ -67,6 +67,7 @@ long smooth() { /* function smooth */
   readings[readIndex] = analogRead(inputPin) * 3300 / 4095;
   // add value to total:
   total = total + readings[readIndex];
+  delay(50);
   // handle index
   readIndex = readIndex + 1;
   if (readIndex >= numReadings) {
