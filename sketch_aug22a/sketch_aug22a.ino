@@ -13,7 +13,7 @@ int timelap = 0;
 const int buttonPin = 22;  // the number of the pushbutton pin
 const int inputPin = 34;
 
-const int numReadings  = 20;
+const int numReadings  = 100;
 int readings [numReadings];
 int readIndex  = 0;
 long total  = 0;
